@@ -30,6 +30,7 @@ private:
     //CALLBACKS
     static gboolean onDestroy();
     static gboolean onIdle( gpointer pointer );
+    static gboolean onRandomButtonClicked( GtkWidget* button, gpointer* pointer );
     
     OSGGTKDrawingArea _canvas;
     

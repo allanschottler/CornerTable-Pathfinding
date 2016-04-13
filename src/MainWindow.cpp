@@ -6,6 +6,7 @@
  */
 
 #include "MainWindow.h"
+#include "CornerTableApplication.h"
 #include <string>
 
 MainWindow::MainWindow() 
@@ -37,6 +38,8 @@ MainWindow::MainWindow()
     
     g_signal_connect( G_OBJECT( _dialog ), "destroy", G_CALLBACK( &MainWindow::onDestroy ), NULL );
     g_signal_connect( G_OBJECT( _dialog ), "delete_event", G_CALLBACK( &MainWindow::onDestroy ), NULL );
+    
+    g_signal_connect( G_OBJECT( _randomButton ), "clicked", G_CALLBACK( &MainWindow::onRandomButtonClicked ), _dialog );
 }
 
 
@@ -67,6 +70,13 @@ gboolean MainWindow::onIdle( gpointer pointer )
     MainWindow* dialog = reinterpret_cast< MainWindow* >( pointer );
     
     dialog->_canvas.queueDraw();
+    
+    return TRUE;
+}
+
+gboolean MainWindow::onRandomButtonClicked( GtkWidget* button, gpointer* pointer )
+{
+    CornerTableApplication::getInstance()->generateRandomPoint();
     
     return TRUE;
 }

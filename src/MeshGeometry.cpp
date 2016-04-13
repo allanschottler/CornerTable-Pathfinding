@@ -28,9 +28,15 @@ void MeshGeometry::buildGeometry()
     osg::ref_ptr< osg::Vec4Array > colorArray = new osg::Vec4Array;
     
     for( int iVertex = 0; iVertex < nVertices; iVertex++ )
-        vertexArray->push_back( osg::Vec3f( (double)vertices[ 3 * iVertex ],
-                                           (double)vertices[ 3 * iVertex + 1 ], 
-                                           (double)vertices[ 3 * iVertex + 2 ] ) );
+    {
+        double x, y, z;
+        
+        x = vertices[ 3 * iVertex ];
+        y = vertices[ 3 * iVertex + 1 ];
+        z = vertices[ 3 * iVertex + 2 ];
+        
+        vertexArray->push_back( osg::Vec3f( x, y, z ) );
+    }
     
     for( int iTriangle = 0; iTriangle < nTriangles; iTriangle++ )
     {
@@ -42,7 +48,17 @@ void MeshGeometry::buildGeometry()
         
         addPrimitiveSet( indexArray );
         
-        colorArray->push_back( osg::Vec4( 0.0f, 0.0f, 1.0f, 1.0f ) );
+        colorArray->push_back( osg::Vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
+        
+        osg::ref_ptr< osg::DrawElementsUInt > indexArray2 = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+        
+        indexArray2->push_back( triangles[ 3 * iTriangle ] );
+        indexArray2->push_back( triangles[ 3 * iTriangle+1 ] );
+        indexArray2->push_back( triangles[ 3 * iTriangle+2 ] );  
+        
+        addPrimitiveSet( indexArray2 );
+        
+        colorArray->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, 1.0f ) );
     }
     
     setVertexArray( vertexArray );

@@ -8,8 +8,12 @@
 #include "CornerTableApplication.h"
 #include "MeshLoader.h"
 #include "MeshGeometry.h"
+#include "PointGenerator.h"
 
 #include <osg/Geode>
+#include <osg/LineWidth>
+#include <fstream>
+#include <iostream>
 
 CornerTableApplication* CornerTableApplication::_instance = 0;
 
@@ -18,18 +22,22 @@ CornerTableApplication::CornerTableApplication() :
 {
     srand( time( NULL ) );
     
-    _cornerTable = MeshLoader().parse( "mesh10.mesh" );
+    _cornerTable = MeshLoader().parse( "mesh11.mesh" );
     
     osg::ref_ptr< MeshGeometry > meshGeometry = new MeshGeometry( _cornerTable );        
     osg::ref_ptr< osg::Geode > scene = new osg::Geode;    
-    scene->addDrawable( meshGeometry );
+    scene->addDrawable( meshGeometry );    
+    
+    osg::LineWidth* linewidth = new osg::LineWidth();
+    linewidth->setWidth(2.0f);
+    scene->getOrCreateStateSet()->setAttributeAndModes( linewidth, osg::StateAttribute::ON ); 
     
     osg::ref_ptr< osgGA::TrackballManipulator > manipulator = new osgGA::TrackballManipulator();
     
-    /*osg::Vec3d eye, center, up, newEye( 0.0f, 0.0f, 1.0f );
+    osg::Vec3d eye, center, up, newEye( 0.0f, 5.0f, 5.0f );
     manipulator->getHomePosition( eye, center, up );    
-    manipulator->setHomePosition( newEye, center, up );*/
-    
+    manipulator->setHomePosition( newEye, center, up );    
+
     _window->getCanvas().setCameraManipulator( manipulator );
     //_window->getCanvas().getCamera()->setClearColor( osg::Vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
     _window->getCanvas().setSceneData( scene );
@@ -51,4 +59,13 @@ CornerTableApplication* CornerTableApplication::getInstance()
         _instance = new CornerTableApplication();
     
     return _instance;
+}
+
+
+void CornerTableApplication::generateRandomPoint()
+{
+    double x, y;
+    PointGenerator().generate( x, y );
+    
+    std::cout << x << " " << y << "\n";
 }

@@ -10,6 +10,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <iostream>
+#include <clocale>
 
 using namespace std;
 
@@ -46,11 +47,13 @@ _currentPath(g_get_current_dir()) {
 
 CornerTable* MeshLoader::parse(string filename) 
 {
+    setlocale(LC_ALL, "C");
+            
     std::string filePath(_currentPath + "/data/" + filename);
     
     int nv, nf;
 
-    struct vertex {
+    /*struct vertex {
         float x;
         float y;
         float z;
@@ -60,7 +63,7 @@ CornerTable* MeshLoader::parse(string filename)
         int v1;
         int v2;
         int v3;
-    };
+    };*/
 
     /*vertex *vertices;
     facade *facades;*/
@@ -90,15 +93,23 @@ CornerTable* MeshLoader::parse(string filename)
     // Read the vertices
     std::vector< double > vertexes;
     vertexes.reserve(nv*3);
+    int index = 0;
     
     for (int n = 0; n < nv; n++) {        
         getline(in, readLine);
+        
         delimiterPos_1 = readLine.find(" ", 0);
-        vertexes.push_back( atof(readLine.substr(0, delimiterPos_1).c_str()) );
+        vertexes[index++] = ( stod(readLine.substr(0, delimiterPos_1).c_str()) );
+        //vertexes.push_back( atof(readLine.substr(0, delimiterPos_1).c_str()) );
+        //vertexes.push_back( strtod( buffer, &buffer ) );
         delimiterPos_2 = readLine.find(" ", delimiterPos_1 + 1);
-        vertexes.push_back( atof(readLine.substr(delimiterPos_1, delimiterPos_2).c_str()));
+        vertexes[index++] = ( stod(readLine.substr(delimiterPos_1, delimiterPos_2).c_str()) );
+        //vertexes.push_back( atof(readLine.substr(delimiterPos_1, delimiterPos_2).c_str()));
+        //vertexes.push_back( strtod( buffer, &buffer ) );
         delimiterPos_3 = readLine.find(" ", delimiterPos_2 + 1);
-        vertexes.push_back( atof(readLine.substr(delimiterPos_2, delimiterPos_3).c_str()) );
+        vertexes[index++] = ( stod(readLine.substr(delimiterPos_2, delimiterPos_3).c_str()) );
+        //vertexes.push_back( atof(readLine.substr(delimiterPos_2, delimiterPos_3).c_str()) );
+        //vertexes.push_back( strtod( buffer, &buffer ) );
 
         cout << vertexes[n] << "\t" << vertexes[n+1] << "\t" <<
                 vertexes[n+2] << "\t" << endl;
@@ -128,6 +139,6 @@ CornerTable* MeshLoader::parse(string filename)
                 indices[n+2] << "\t" << endl;
     }    
     
-    return new CornerTable( &(indices[ 0 ]), &(vertexes[ 0 ]), nf, nv, 3 );
+    return new CornerTable( &indices[ 0 ], &vertexes[ 0 ], nf, nv, 3 );
 }
 
