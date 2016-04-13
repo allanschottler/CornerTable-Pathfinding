@@ -12,25 +12,27 @@
 
 #include <osg/Geode>
 #include <osg/LineWidth>
+#include <osg/Point>
 #include <fstream>
 #include <iostream>
 
 CornerTableApplication* CornerTableApplication::_instance = 0;
 
 CornerTableApplication::CornerTableApplication() :
-    _window( new MainWindow() )
+    _window( new MainWindow() ),
+    _cornerTable( nullptr )
 {
-    srand( time( NULL ) );
+    srand( time( NULL ) );    
+            
+    _scene = new osg::Geode; 
     
-    _cornerTable = MeshLoader().parse( "mesh11.mesh" );
+    osg::ref_ptr< osg::LineWidth > linewidth = new osg::LineWidth();
+    linewidth->setWidth( 2.0f );
+    _scene->getOrCreateStateSet()->setAttributeAndModes( linewidth, osg::StateAttribute::ON ); 
     
-    osg::ref_ptr< MeshGeometry > meshGeometry = new MeshGeometry( _cornerTable );        
-    osg::ref_ptr< osg::Geode > scene = new osg::Geode;    
-    scene->addDrawable( meshGeometry );    
-    
-    osg::LineWidth* linewidth = new osg::LineWidth();
-    linewidth->setWidth(2.0f);
-    scene->getOrCreateStateSet()->setAttributeAndModes( linewidth, osg::StateAttribute::ON ); 
+    osg::ref_ptr< osg::Point > point = new osg::Point;
+    point->setSize( 2.0f );    
+    _scene->getOrCreateStateSet()->setAttribute( point, osg::StateAttribute::ON );
     
     osg::ref_ptr< osgGA::TrackballManipulator > manipulator = new osgGA::TrackballManipulator();
     
@@ -40,7 +42,7 @@ CornerTableApplication::CornerTableApplication() :
 
     _window->getCanvas().setCameraManipulator( manipulator );
     //_window->getCanvas().getCamera()->setClearColor( osg::Vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
-    _window->getCanvas().setSceneData( scene );
+    _window->getCanvas().setSceneData( _scene );
     _window->show();
 }
 
@@ -62,10 +64,27 @@ CornerTableApplication* CornerTableApplication::getInstance()
 }
 
 
+void CornerTableApplication::openFile( std::string file )
+{
+    _scene->removeDrawables( 0, _scene->getNumDrawables() );
+    
+    _cornerTable = MeshLoader().parse( file );
+    
+    if( !_cornerTable )
+        return;
+    
+    osg::ref_ptr< MeshGeometry > meshGeometry = new MeshGeometry( _cornerTable );   
+    _scene->addDrawable( meshGeometry );    
+}
+
+
 void CornerTableApplication::generateRandomPoint()
 {
     double x, y;
     PointGenerator().generate( x, y );
     
-    std::cout << x << " " << y << "\n";
+    _window->clearMessages();
+    
+    std::string msg( "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")" );    
+    _window->printMessage( msg );
 }

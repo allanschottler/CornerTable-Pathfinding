@@ -25,6 +25,10 @@ public:
     
     OSGGTKDrawingArea& getCanvas();
     
+    void printMessage( std::string message );
+    
+    void clearMessages();
+    
 private:
     
     //CALLBACKS
@@ -32,10 +36,18 @@ private:
     static gboolean onIdle( gpointer pointer );
     static gboolean onRandomButtonClicked( GtkWidget* button, gpointer* pointer );
     
+    static gboolean onOpenButtonClicked( GtkWidget* button, gpointer* pointer );
+    static gboolean onQuitButtonClicked( GtkWidget* button, gpointer* pointer );
+    
     OSGGTKDrawingArea _canvas;
     
     GtkWidget* _dialog;
     GtkWidget* _randomButton;
+    GtkWidget* _textView;
+    
+    //Menu
+    GtkWidget* _openButton;
+    GtkWidget* _quitButton;
 
 };
 

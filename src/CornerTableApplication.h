@@ -19,6 +19,8 @@ public:
     
     static CornerTableApplication* getInstance();
     
+    void openFile( std::string file );
+    
     void generateRandomPoint();
     
 private:
@@ -31,6 +33,7 @@ private:
     
     CornerTable* _cornerTable;
     
+    osg::ref_ptr< osg::Geode > _scene;
 };
 
 #endif /* CORNERTABLEAPPLICATION_H */

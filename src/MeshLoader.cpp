@@ -49,7 +49,8 @@ CornerTable* MeshLoader::parse(string filename)
 {
     setlocale(LC_ALL, "C");
             
-    std::string filePath(_currentPath + "/data/" + filename);
+    //std::string filePath(_currentPath + "/data/" + filename);
+    std::string filePath( filename );
     
     int nv, nf;
 

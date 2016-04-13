@@ -33,6 +33,10 @@ MainWindow::MainWindow()
     }
     
     _randomButton = GTK_WIDGET( gtk_builder_get_object( builder, "randomButton" ) );
+    _textView = GTK_WIDGET( gtk_builder_get_object( builder, "textview1" ) );    
+    
+    _openButton = GTK_WIDGET( gtk_builder_get_object( builder, "imagemenuitem2" ) );
+    _quitButton = GTK_WIDGET( gtk_builder_get_object( builder, "imagemenuitem5" ) );
     
     g_timeout_add( 15, (GSourceFunc)( &MainWindow::onIdle ), this );
     
@@ -40,6 +44,10 @@ MainWindow::MainWindow()
     g_signal_connect( G_OBJECT( _dialog ), "delete_event", G_CALLBACK( &MainWindow::onDestroy ), NULL );
     
     g_signal_connect( G_OBJECT( _randomButton ), "clicked", G_CALLBACK( &MainWindow::onRandomButtonClicked ), _dialog );
+    
+    //Menu
+    g_signal_connect( G_OBJECT( _openButton ), "activate", G_CALLBACK( &MainWindow::onOpenButtonClicked ), _dialog );
+    g_signal_connect( G_OBJECT( _quitButton ), "activate", G_CALLBACK( &MainWindow::onQuitButtonClicked ), _dialog );
 }
 
 
@@ -56,6 +64,30 @@ void MainWindow::show()
 OSGGTKDrawingArea& MainWindow::getCanvas()
 {
     return _canvas;
+}
+
+void MainWindow::printMessage( std::string message )
+{
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW( _textView ) );
+    GtkTextIter start;
+    GtkTextIter end;
+    gchar *text;
+
+    /* Obtain iters for the start and end of points of the buffer */
+    gtk_text_buffer_get_start_iter(buffer, &start);
+    gtk_text_buffer_get_end_iter(buffer, &end);
+
+    /* Get the entire buffer text. */
+    text = gtk_text_buffer_get_text( buffer, &start, &end, FALSE );
+    
+    std::string newText( text + message + "\n" );
+    gtk_text_buffer_set_text( buffer, newText.c_str(), newText.size() );
+}
+
+void MainWindow::clearMessages()
+{
+    GtkTextBuffer* buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW( _textView ) );
+    gtk_text_buffer_set_text( buffer, "", 0 );
 }
 
 gboolean MainWindow::onDestroy()
@@ -79,4 +111,36 @@ gboolean MainWindow::onRandomButtonClicked( GtkWidget* button, gpointer* pointer
     CornerTableApplication::getInstance()->generateRandomPoint();
     
     return TRUE;
+}
+
+gboolean MainWindow::onOpenButtonClicked( GtkWidget* button, gpointer* pointer )
+{
+    MainWindow* dialog = reinterpret_cast< MainWindow* >( pointer );
+    
+    GtkWidget* chooseDialog;
+    chooseDialog = gtk_file_chooser_dialog_new( "Open File",
+                                          GTK_WINDOW( dialog->_dialog ),
+                                          GTK_FILE_CHOOSER_ACTION_OPEN,
+                                          GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                          GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
+                                          NULL );
+    
+    if( gtk_dialog_run( GTK_DIALOG( chooseDialog ) ) == GTK_RESPONSE_ACCEPT )
+    {
+        char *filename;
+        filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER( chooseDialog ) );
+        
+        CornerTableApplication::getInstance()->openFile( std::string( filename ) );
+        
+        g_free( filename );
+    }
+    
+    gtk_widget_destroy( chooseDialog );
+    
+    return TRUE;
+}
+
+gboolean MainWindow::onQuitButtonClicked( GtkWidget* button, gpointer* pointer )
+{
+    return MainWindow::onDestroy();
 }
