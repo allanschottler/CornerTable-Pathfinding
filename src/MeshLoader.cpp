@@ -15,37 +15,11 @@
 using namespace std;
 
 MeshLoader::MeshLoader() :
-_currentPath(g_get_current_dir()) {
+    _currentPath( g_get_current_dir() ) 
+{
 }
 
-/*CornerTable* MeshLoader::load(std::string file) {
-    std::string filePath(_currentPath + "/data/" + file);
-
-    FILE* in = fopen(filePath.c_str(), "r");
-
-    if (!in)
-        return 0;
-
-    char* garbage;
-    fscanf(in, "%s", garbage);
-
-    double x, y, z;
-    fscanf(in, "%lf %lf %lf", &x, &y, &z);
-
-    unsigned int numberOfVertices = x;
-    unsigned int numberOfTriangles = y;
-
-    for (unsigned int iVertex = 0; iVertex < numberOfVertices; iVertex++) {
-        fscanf(in, "%lf %lf %lf", &x, &y, &z);
-        std::cout << x << " " << y << " " << z << "\n";
-    }
-
-    fclose(in);
-
-    return 0;
-}*/
-
-CornerTable* MeshLoader::parse(string filename) 
+CornerTable* MeshLoader::parse( string filename ) 
 {
     setlocale(LC_ALL, "C");
             
@@ -53,21 +27,6 @@ CornerTable* MeshLoader::parse(string filename)
     std::string filePath( filename );
     
     int nv, nf;
-
-    /*struct vertex {
-        float x;
-        float y;
-        float z;
-    };
-
-    struct facade {
-        int v1;
-        int v2;
-        int v3;
-    };*/
-
-    /*vertex *vertices;
-    facade *facades;*/
     
     // Container holding last line read
     string readLine;
@@ -112,8 +71,8 @@ CornerTable* MeshLoader::parse(string filename)
         //vertexes.push_back( atof(readLine.substr(delimiterPos_2, delimiterPos_3).c_str()) );
         //vertexes.push_back( strtod( buffer, &buffer ) );
 
-        cout << vertexes[n] << "\t" << vertexes[n+1] << "\t" <<
-                vertexes[n+2] << "\t" << endl;
+        /*cout << vertexes[n] << "\t" << vertexes[n+1] << "\t" <<
+                vertexes[n+2] << "\t" << endl;*/
     }
 
     // Read the facades
@@ -136,8 +95,8 @@ CornerTable* MeshLoader::parse(string filename)
         indices.push_back(
                 atoi(readLine.substr(delimiterPos_4, delimiterPos_5).c_str()));
 
-        cout << indices[n] << "\t" << indices[n+1] << "\t" <<
-                indices[n+2] << "\t" << endl;
+        /*cout << indices[n] << "\t" << indices[n+1] << "\t" <<
+                indices[n+2] << "\t" << endl;*/
     }    
     
     return new CornerTable( &indices[ 0 ], &vertexes[ 0 ], nf, nv, 3 );

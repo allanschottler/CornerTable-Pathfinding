@@ -18,10 +18,8 @@ public:
     MeshLoader();
     
     virtual ~MeshLoader() {};
-    
-    //CornerTable* load( std::string file );
-    
-    CornerTable*  parse(std::string filename);
+        
+    CornerTable* parse( std::string filename );
     
 private:
     

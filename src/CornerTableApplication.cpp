@@ -31,7 +31,7 @@ CornerTableApplication::CornerTableApplication() :
     _scene->getOrCreateStateSet()->setAttributeAndModes( linewidth, osg::StateAttribute::ON ); 
     
     osg::ref_ptr< osg::Point > point = new osg::Point;
-    point->setSize( 2.0f );    
+    point->setSize( 9.0f );    
     _scene->getOrCreateStateSet()->setAttribute( point, osg::StateAttribute::ON );
     
     osg::ref_ptr< osgGA::TrackballManipulator > manipulator = new osgGA::TrackballManipulator();
@@ -74,17 +74,47 @@ void CornerTableApplication::openFile( std::string file )
         return;
     
     osg::ref_ptr< MeshGeometry > meshGeometry = new MeshGeometry( _cornerTable );   
-    _scene->addDrawable( meshGeometry );    
+    _scene->addDrawable( meshGeometry );   
+    
+    _window->clearMessages();
 }
 
 
 void CornerTableApplication::generateRandomPoint()
 {
+    if( !_cornerTable )
+        return;
+    
     double x, y;
     PointGenerator().generate( x, y );
     
     _window->clearMessages();
+    _scene->removeDrawable( _pointGeometry );
     
     std::string msg( "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")" );    
     _window->printMessage( msg );
+    
+    _pointGeometry = createPointGeometry( x, y );
+    _scene->addDrawable( _pointGeometry );
+}
+
+
+osg::ref_ptr< osg::Geometry > CornerTableApplication::createPointGeometry( double x, double y )
+{
+    osg::ref_ptr< osg::Geometry > point = new osg::Geometry;
+    
+    osg::ref_ptr< osg::Vec3Array > vertexArray = new osg::Vec3Array;
+    osg::ref_ptr< osg::Vec4Array > colorArray = new osg::Vec4Array;;
+    osg::ref_ptr< osg::DrawElementsUInt > primitive = new osg::DrawElementsUInt( osg::PrimitiveSet::POINTS, 0 );
+    
+    vertexArray->push_back( osg::Vec3( x, y, 0. ) );
+    colorArray->push_back( osg::Vec4( 1.f, 0.f, 0.f, 1.f ) );    
+    primitive->push_back( 0 );
+    
+    point->setVertexArray( vertexArray );
+    point->setColorArray( colorArray );
+    point->setColorBinding( osg::Geometry::BIND_OVERALL );
+    point->addPrimitiveSet( primitive );
+    
+    return point;
 }

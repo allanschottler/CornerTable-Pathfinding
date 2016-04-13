@@ -27,6 +27,8 @@ private:
     
     CornerTableApplication();
     
+    static osg::ref_ptr< osg::Geometry > createPointGeometry( double x, double y );
+        
     static CornerTableApplication* _instance;
     
     MainWindow* _window;
@@ -34,6 +36,8 @@ private:
     CornerTable* _cornerTable;
     
     osg::ref_ptr< osg::Geode > _scene;
+    
+    osg::ref_ptr< osg::Geometry > _pointGeometry;
 };
 
 #endif /* CORNERTABLEAPPLICATION_H */
