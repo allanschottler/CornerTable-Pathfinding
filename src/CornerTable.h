@@ -238,10 +238,10 @@ public:
     void edgeWeld( const CornerType corner );
 
     /**
-     * Returns true if coordinate is on the other side of given corners edge
+     * Returns orientation of given coordinate 
      * @param corner
      * @param coordinate
-     * @return 
+     * @return 0 if point in on line, 1 if on left side, -1 if on right side
      */
     int edgeOriented( const CornerType corner, double* coordinate );
     

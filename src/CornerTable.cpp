@@ -437,9 +437,11 @@ int CornerTable::edgeOriented( const CornerType corner, double* coordinate )
     double X = coordinate[0];
     double Y = coordinate[1];
     
-    auto neighbours = getCornerNeighbours( corner );
-    int v0 = cornerToVertexIndex( neighbours[0] );
-    int v1 = cornerToVertexIndex( neighbours[1] );
+    //auto neighbours = getCornerNeighbours( corner );
+    int c0 = cornerPrevious( corner );
+    int c1 = cornerNext( corner );
+    int v0 = cornerToVertexIndex( c0 );
+    int v1 = cornerToVertexIndex( c1 );
     
     double Ax = getAttributes()[ _numberCoordinatesByVertex * v0 ];
     double Ay = getAttributes()[ _numberCoordinatesByVertex * v0 + 1 ];

@@ -142,7 +142,7 @@ std::list< int > CornerTableApplication::calculateTrianglePathToPoint( double x,
     point[1] = y;
     point[2] = 0.;
     
-    while( currentCorner != -1 )
+    while( currentCorner != CornerTable::BORDER_CORNER )
     {
         int i;
 
