@@ -238,6 +238,14 @@ public:
     void edgeWeld( const CornerType corner );
 
     /**
+     * Returns true if coordinate is on the other side of given corners edge
+     * @param corner
+     * @param coordinate
+     * @return 
+     */
+    int edgeOriented( const CornerType corner, double* coordinate );
+    
+    /**
      * Return the number of attributes by vertex.
      * @return - number of attributes by vertex.
      */

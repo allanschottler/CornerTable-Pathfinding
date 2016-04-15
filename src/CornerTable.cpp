@@ -432,6 +432,26 @@ void CornerTable::edgeWeld( const CornerType corner )
 
 
 
+int CornerTable::edgeOriented( const CornerType corner, double* coordinate )
+{
+    double X = coordinate[0];
+    double Y = coordinate[1];
+    
+    auto neighbours = getCornerNeighbours( corner );
+    int v0 = cornerToVertexIndex( neighbours[0] );
+    int v1 = cornerToVertexIndex( neighbours[1] );
+    
+    double Ax = getAttributes()[ _numberCoordinatesByVertex * v0 ];
+    double Ay = getAttributes()[ _numberCoordinatesByVertex * v0 + 1 ];
+    double Bx = getAttributes()[ _numberCoordinatesByVertex * v1 ];
+    double By = getAttributes()[ _numberCoordinatesByVertex * v1 + 1 ];
+    
+    double orientation = (Bx - Ax) * (Y - Ay) - (By - Ay) * (X - Ax);
+    return (orientation < 0) ? -1 : (orientation > 0) ? 1 : 0; 
+}
+
+
+
 void CornerTable::buildOppositeTable( )
 {
     //The adjacency list from corner to vetices.

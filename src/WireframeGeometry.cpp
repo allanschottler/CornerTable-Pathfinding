@@ -1,24 +1,24 @@
 /* 
- * File:   MeshGeometry.cpp
+ * File:   WireframeGeometry.cpp
  * Author: allan
  * 
- * Created on April 13, 2016, 12:30 AM
+ * Created on April 15, 2016, 5:06 PM
  */
 
-#include "MeshGeometry.h"
-#include <iostream>
+#include "WireframeGeometry.h"
+#include "CornerTable.h"
 
-MeshGeometry::MeshGeometry( CornerTable* cornerTable ) :
+WireframeGeometry::WireframeGeometry( CornerTable* cornerTable ) :
     _cornerTable( cornerTable )
 {
     buildGeometry();
 }
 
-MeshGeometry::~MeshGeometry() 
+WireframeGeometry::~WireframeGeometry() 
 {
 }
 
-void MeshGeometry::buildGeometry()
+void WireframeGeometry::buildGeometry()
 {
     int nTriangles = _cornerTable->getNumTriangles();
     const int* triangles = _cornerTable->getTriangleList();
@@ -40,8 +40,8 @@ void MeshGeometry::buildGeometry()
     }
     
     for( int iTriangle = 0; iTriangle < nTriangles; iTriangle++ )
-    {   
-        osg::ref_ptr< osg::DrawElementsUInt > indexArray = new osg::DrawElementsUInt( osg::PrimitiveSet::TRIANGLES, 0 );
+    {
+        osg::ref_ptr< osg::DrawElementsUInt > indexArray = new osg::DrawElementsUInt( osg::PrimitiveSet::LINE_LOOP, 0 );
         
         indexArray->push_back( triangles[ 3 * iTriangle ] );
         indexArray->push_back( triangles[ 3 * iTriangle+1 ] );
@@ -49,28 +49,10 @@ void MeshGeometry::buildGeometry()
         
         addPrimitiveSet( indexArray );
         
-        colorArray->push_back( osg::Vec4( 1.0f, 1.0f, 0.0f, 1.0f ) );
+        colorArray->push_back( osg::Vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
     }
     
     setVertexArray( vertexArray );
     setColorArray( colorArray );
     setColorBinding( BIND_PER_PRIMITIVE_SET );
-}
-
-void MeshGeometry::highlightTriangles( std::list< int > triangles )
-{
-    osg::Vec4Array* colors = dynamic_cast< osg::Vec4Array* >( getColorArray() );
-    
-    if( !colors )
-        return;    
-    
-    for( auto& triangle : _highlightedTriangles )
-        colors->at( triangle ).set( 1.0f, 1.0f, 0.0f, 1.0f );
-    
-    _highlightedTriangles = triangles;
-    
-    for( auto& triangle : _highlightedTriangles )
-        colors->at( triangle ).set( 0.0f, 1.0f, 0.0f, 1.0f );
-    
-    setColorArray( colors );
 }

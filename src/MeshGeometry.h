@@ -20,11 +20,15 @@ public:
     
     virtual ~MeshGeometry();
     
+    void highlightTriangles( std::list< int > triangles );
+    
 private:
     
     void buildGeometry();
     
     CornerTable* _cornerTable;
+    
+    std::list< int > _highlightedTriangles;
 };
 
 #endif /* MESHGEOMETRY_H */

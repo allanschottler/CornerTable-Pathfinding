@@ -10,6 +10,8 @@
 
 #include "MainWindow.h"
 #include "CornerTable.h"
+#include "MeshGeometry.h"
+#include "WireframeGeometry.h"
 
 class CornerTableApplication 
 {
@@ -19,7 +21,7 @@ public:
     
     static CornerTableApplication* getInstance();
     
-    void openFile( std::string file );
+    bool openFile( std::string file );
     
     void generateRandomPoint();
     
@@ -28,7 +30,9 @@ private:
     CornerTableApplication();
     
     static osg::ref_ptr< osg::Geometry > createPointGeometry( double x, double y );
-        
+    
+    std::list< int > calculateTrianglePathToPoint( double x, double y );
+    
     static CornerTableApplication* _instance;
     
     MainWindow* _window;
@@ -36,6 +40,10 @@ private:
     CornerTable* _cornerTable;
     
     osg::ref_ptr< osg::Geode > _scene;
+    
+    osg::ref_ptr< MeshGeometry > _meshGeometry;
+    
+    osg::ref_ptr< WireframeGeometry > _wireframeGeometry;
     
     osg::ref_ptr< osg::Geometry > _pointGeometry;
 };

@@ -17,7 +17,7 @@ class MainWindow
 {
 public:
     
-    MainWindow();
+    MainWindow( std::string title );
     
     virtual ~MainWindow();
     
@@ -36,8 +36,10 @@ private:
     static gboolean onIdle( gpointer pointer );
     static gboolean onRandomButtonClicked( GtkWidget* button, gpointer* pointer );
     
-    static gboolean onOpenButtonClicked( GtkWidget* button, gpointer* pointer );
-    static gboolean onQuitButtonClicked( GtkWidget* button, gpointer* pointer );
+    static gboolean onOpenButtonClicked( GtkWidget* button, gpointer pointer );
+    static gboolean onQuitButtonClicked( GtkWidget* button, gpointer pointer );
+    
+    std::string _title;
     
     OSGGTKDrawingArea _canvas;
     

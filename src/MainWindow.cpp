@@ -8,8 +8,10 @@
 #include "MainWindow.h"
 #include "CornerTableApplication.h"
 #include <string>
+#include <iostream>
 
-MainWindow::MainWindow() 
+MainWindow::MainWindow( std::string title ) :
+    _title( title ) 
 {
     GError* error = NULL;
     GtkBuilder* builder = gtk_builder_new();
@@ -24,6 +26,8 @@ MainWindow::MainWindow()
     }
     
     _dialog = GTK_WIDGET( gtk_builder_get_object( builder, "window1" ) );
+    
+    gtk_window_set_title( GTK_WINDOW( _dialog ), _title.c_str() );
     
     GtkWidget* canvasBox = GTK_WIDGET( gtk_builder_get_object( builder, "alignmentCanvas" ) );
     
@@ -43,11 +47,12 @@ MainWindow::MainWindow()
     g_signal_connect( G_OBJECT( _dialog ), "destroy", G_CALLBACK( &MainWindow::onDestroy ), NULL );
     g_signal_connect( G_OBJECT( _dialog ), "delete_event", G_CALLBACK( &MainWindow::onDestroy ), NULL );
     
-    g_signal_connect( G_OBJECT( _randomButton ), "clicked", G_CALLBACK( &MainWindow::onRandomButtonClicked ), _dialog );
+    g_signal_connect( G_OBJECT( _randomButton ), "clicked", G_CALLBACK( &MainWindow::onRandomButtonClicked ), NULL );
     
-    //Menu
     g_signal_connect( G_OBJECT( _openButton ), "activate", G_CALLBACK( &MainWindow::onOpenButtonClicked ), _dialog );
     g_signal_connect( G_OBJECT( _quitButton ), "activate", G_CALLBACK( &MainWindow::onQuitButtonClicked ), _dialog );
+    
+    g_object_set_data( ( GObject* ) _dialog, "THIS", ( gpointer )this );
 }
 
 
@@ -113,9 +118,14 @@ gboolean MainWindow::onRandomButtonClicked( GtkWidget* button, gpointer* pointer
     return TRUE;
 }
 
-gboolean MainWindow::onOpenButtonClicked( GtkWidget* button, gpointer* pointer )
+gboolean MainWindow::onOpenButtonClicked( GtkWidget* button, gpointer pointer )
 {
-    MainWindow* dialog = reinterpret_cast< MainWindow* >( pointer );
+    gpointer result = g_object_get_data( ( GObject* ) pointer, "THIS" );
+    
+    if( result == NULL )
+        return FALSE;
+    
+    MainWindow* dialog = reinterpret_cast< MainWindow* >( result );
     
     GtkWidget* chooseDialog;
     chooseDialog = gtk_file_chooser_dialog_new( "Open File",
@@ -128,9 +138,15 @@ gboolean MainWindow::onOpenButtonClicked( GtkWidget* button, gpointer* pointer )
     if( gtk_dialog_run( GTK_DIALOG( chooseDialog ) ) == GTK_RESPONSE_ACCEPT )
     {
         char *filename;
-        filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER( chooseDialog ) );
+        filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER( chooseDialog ) );        
+        std::string filenameStr( filename );
+        gtk_window_set_title( GTK_WINDOW( dialog->_dialog ), dialog->_title.c_str() );
         
-        CornerTableApplication::getInstance()->openFile( std::string( filename ) );
+        if( CornerTableApplication::getInstance()->openFile( filenameStr ) )
+        {
+            std::string newTitle( dialog->_title + " - " + filenameStr );
+            gtk_window_set_title( GTK_WINDOW( dialog->_dialog ), newTitle.c_str() );
+        }
         
         g_free( filename );
     }
@@ -140,7 +156,7 @@ gboolean MainWindow::onOpenButtonClicked( GtkWidget* button, gpointer* pointer )
     return TRUE;
 }
 
-gboolean MainWindow::onQuitButtonClicked( GtkWidget* button, gpointer* pointer )
+gboolean MainWindow::onQuitButtonClicked( GtkWidget* button, gpointer pointer )
 {
     return MainWindow::onDestroy();
 }

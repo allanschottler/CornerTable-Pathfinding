@@ -9,6 +9,7 @@
 #include "MeshLoader.h"
 #include "MeshGeometry.h"
 #include "PointGenerator.h"
+#include "WireframeGeometry.h"
 
 #include <osg/Geode>
 #include <osg/LineWidth>
@@ -19,7 +20,7 @@
 CornerTableApplication* CornerTableApplication::_instance = 0;
 
 CornerTableApplication::CornerTableApplication() :
-    _window( new MainWindow() ),
+    _window( new MainWindow( "Corner Table" ) ),
     _cornerTable( nullptr )
 {
     srand( time( NULL ) );    
@@ -34,6 +35,8 @@ CornerTableApplication::CornerTableApplication() :
     point->setSize( 9.0f );    
     _scene->getOrCreateStateSet()->setAttribute( point, osg::StateAttribute::ON );
     
+    _scene->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
+    
     osg::ref_ptr< osgGA::TrackballManipulator > manipulator = new osgGA::TrackballManipulator();
     
     osg::Vec3d eye, center, up, newEye( 0.0f, 5.0f, 5.0f );
@@ -41,7 +44,6 @@ CornerTableApplication::CornerTableApplication() :
     manipulator->setHomePosition( newEye, center, up );    
 
     _window->getCanvas().setCameraManipulator( manipulator );
-    //_window->getCanvas().getCamera()->setClearColor( osg::Vec4( 0.0f, 0.0f, 0.0f, 1.0f ) );
     _window->getCanvas().setSceneData( _scene );
     _window->show();
 }
@@ -64,19 +66,24 @@ CornerTableApplication* CornerTableApplication::getInstance()
 }
 
 
-void CornerTableApplication::openFile( std::string file )
+bool CornerTableApplication::openFile( std::string file )
 {
     _scene->removeDrawables( 0, _scene->getNumDrawables() );
     
     _cornerTable = MeshLoader().parse( file );
     
     if( !_cornerTable )
-        return;
+        return false;
     
-    osg::ref_ptr< MeshGeometry > meshGeometry = new MeshGeometry( _cornerTable );   
-    _scene->addDrawable( meshGeometry );   
+    _meshGeometry = new MeshGeometry( _cornerTable );   
+    _wireframeGeometry = new WireframeGeometry( _cornerTable );
+    
+    _scene->addDrawable( _meshGeometry );   
+    _scene->addDrawable( _wireframeGeometry );   
     
     _window->clearMessages();
+    
+    return true;
 }
 
 
@@ -96,6 +103,12 @@ void CornerTableApplication::generateRandomPoint()
     
     _pointGeometry = createPointGeometry( x, y );
     _scene->addDrawable( _pointGeometry );
+    
+    std::list< int > trianglePath = calculateTrianglePathToPoint( x, y );
+    _meshGeometry->highlightTriangles( trianglePath );
+    
+    for( auto& triangle : trianglePath )
+        _window->printMessage( std::string( std::to_string( triangle ) ) );
 }
 
 
@@ -117,4 +130,49 @@ osg::ref_ptr< osg::Geometry > CornerTableApplication::createPointGeometry( doubl
     point->addPrimitiveSet( primitive );
     
     return point;
+}
+
+std::list< int > CornerTableApplication::calculateTrianglePathToPoint( double x, double y )
+{
+    std::list< int > triangles;
+    int currentCorner = 0;
+    double point[3];
+    
+    point[0] = x;
+    point[1] = y;
+    point[2] = 0.;
+    
+    while( currentCorner != -1 )
+    {
+        int i;
+
+        for( i = 0; i < 3; i++ )
+        {        
+            int pos = _cornerTable->edgeOriented( currentCorner, point );
+
+            if( pos == 0 )
+            {
+                triangles.push_back( _cornerTable->cornerTriangle( currentCorner ) );
+                return triangles;
+            }
+
+            if( pos == 1 )
+            {
+                triangles.push_back( _cornerTable->cornerTriangle( currentCorner ) );
+                currentCorner = _cornerTable->cornerNext( _cornerTable->cornerOpposite( currentCorner ) );
+                break;
+            }
+
+            if( pos == -1 )
+                currentCorner = _cornerTable->cornerNext( currentCorner );
+        }
+
+        if( i == 3 )
+        {
+            triangles.push_back( _cornerTable->cornerTriangle( currentCorner ) );
+            return triangles;
+        }
+    }
+    
+    return triangles;
 }
