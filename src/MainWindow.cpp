@@ -38,9 +38,11 @@ MainWindow::MainWindow( std::string title ) :
     
     _randomButton = GTK_WIDGET( gtk_builder_get_object( builder, "randomButton" ) );
     _textView = GTK_WIDGET( gtk_builder_get_object( builder, "textview1" ) );    
+    _aboutDialog = GTK_WIDGET( gtk_builder_get_object( builder, "aboutdialog1" ) );  
     
     _openButton = GTK_WIDGET( gtk_builder_get_object( builder, "imagemenuitem2" ) );
     _quitButton = GTK_WIDGET( gtk_builder_get_object( builder, "imagemenuitem5" ) );
+    _aboutButton = GTK_WIDGET( gtk_builder_get_object( builder, "imagemenuitem10" ) );
     
     g_timeout_add( 15, (GSourceFunc)( &MainWindow::onIdle ), this );
     
@@ -51,6 +53,7 @@ MainWindow::MainWindow( std::string title ) :
     
     g_signal_connect( G_OBJECT( _openButton ), "activate", G_CALLBACK( &MainWindow::onOpenButtonClicked ), _dialog );
     g_signal_connect( G_OBJECT( _quitButton ), "activate", G_CALLBACK( &MainWindow::onQuitButtonClicked ), _dialog );
+    g_signal_connect( G_OBJECT( _aboutButton ), "activate", G_CALLBACK( &MainWindow::onAboutButtonClicked ), _dialog );
     
     g_object_set_data( ( GObject* ) _dialog, "THIS", ( gpointer )this );
 }
@@ -159,4 +162,26 @@ gboolean MainWindow::onOpenButtonClicked( GtkWidget* button, gpointer pointer )
 gboolean MainWindow::onQuitButtonClicked( GtkWidget* button, gpointer pointer )
 {
     return MainWindow::onDestroy();
+}
+
+gboolean MainWindow::onAboutButtonClicked( GtkWidget* button, gpointer pointer )
+{
+    gpointer result = g_object_get_data( ( GObject* ) pointer, "THIS" );
+    
+    if( result == NULL )
+        return FALSE;
+    
+    MainWindow* dialog = reinterpret_cast< MainWindow* >( result );
+    
+    gtk_widget_destroy( dialog->_aboutDialog );
+    
+    dialog->_aboutDialog = gtk_about_dialog_new();
+    gtk_about_dialog_set_name( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), "[FCG] Trabalho 2" );
+    gtk_about_dialog_set_version( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), "v1.0" );
+    gtk_about_dialog_set_comments( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), "Trabalho sobre Corner Tables.\nProf. Marcelo Gattass\n19/04/2016" );
+    //gtk_about_dialog_set_authors( GTK_ABOUT_DIALOG( aboutDialog ), "Allan Werner Schöttler" );
+    
+    gtk_widget_show_all( dialog->_aboutDialog );
+    
+    return TRUE;
 }

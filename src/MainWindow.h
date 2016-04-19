@@ -38,6 +38,7 @@ private:
     
     static gboolean onOpenButtonClicked( GtkWidget* button, gpointer pointer );
     static gboolean onQuitButtonClicked( GtkWidget* button, gpointer pointer );
+    static gboolean onAboutButtonClicked( GtkWidget* button, gpointer pointer );
     
     std::string _title;
     
@@ -46,10 +47,12 @@ private:
     GtkWidget* _dialog;
     GtkWidget* _randomButton;
     GtkWidget* _textView;
+    GtkWidget* _aboutDialog;
     
     //Menu
     GtkWidget* _openButton;
     GtkWidget* _quitButton;
+    GtkWidget* _aboutButton;
 
 };
 

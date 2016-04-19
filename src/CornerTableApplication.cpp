@@ -16,11 +16,12 @@
 #include <osg/Point>
 #include <fstream>
 #include <iostream>
+#include <assert.h>
 
 CornerTableApplication* CornerTableApplication::_instance = 0;
 
 CornerTableApplication::CornerTableApplication() :
-    _window( new MainWindow( "Corner Table" ) ),
+    _window( new MainWindow( "[FCG] Trabalho 2" ) ),
     _cornerTable( nullptr )
 {
     srand( time( NULL ) );    
@@ -90,16 +91,25 @@ bool CornerTableApplication::openFile( std::string file )
 void CornerTableApplication::generateRandomPoint()
 {
     if( !_cornerTable )
-        return;
-    
-    double x, y;
-    PointGenerator().generate( x, y );
+        return;    
     
     _window->clearMessages();
     _scene->removeDrawable( _pointGeometry );
     
-    std::string msg( "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")" );    
+    double x, y;
+    PointGenerator().generate( x, y );    
+    
+    std::string msg( "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")" );   
+    
     _window->printMessage( msg );
+    
+    osg::BoundingBox bb = _meshGeometry->getBound();
+    x = ( ( ( x - (-1) ) * ( bb._max.x() - bb._min.x() ) ) / ( 1 - (-1) ) ) + bb._min.x();
+    y = ( ( ( y - (-1) ) * ( bb._max.y() - bb._min.y() ) ) / ( 1 - (-1) ) ) + bb._min.y();
+    
+    /*msg =  "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")";
+     
+    _window->printMessage( msg );*/
     
     _pointGeometry = createPointGeometry( x, y );
     _scene->addDrawable( _pointGeometry );
@@ -159,7 +169,12 @@ std::list< int > CornerTableApplication::calculateTrianglePathToPoint( double x,
             if( pos == 1 )
             {
                 triangles.push_back( _cornerTable->cornerTriangle( currentCorner ) );
-                currentCorner = _cornerTable->cornerNext( _cornerTable->cornerOpposite( currentCorner ) );
+                int opposite = _cornerTable->cornerOpposite( currentCorner );
+                
+                if( opposite == CornerTable::BORDER_CORNER )
+                    return triangles;
+                
+                currentCorner = _cornerTable->cornerNext( opposite );
                 break;
             }
 

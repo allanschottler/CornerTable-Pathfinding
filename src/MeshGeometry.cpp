@@ -11,6 +11,7 @@
 MeshGeometry::MeshGeometry( CornerTable* cornerTable ) :
     _cornerTable( cornerTable )
 {
+    setDataVariance( DYNAMIC );
     buildGeometry();
 }
 
