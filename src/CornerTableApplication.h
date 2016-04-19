@@ -25,6 +25,8 @@ public:
     
     void generateRandomPoint();
     
+    void pickPoint( double x, double y );
+    
 private:
     
     CornerTableApplication();

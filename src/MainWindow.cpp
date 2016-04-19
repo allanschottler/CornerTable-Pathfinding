@@ -173,13 +173,23 @@ gboolean MainWindow::onAboutButtonClicked( GtkWidget* button, gpointer pointer )
     
     MainWindow* dialog = reinterpret_cast< MainWindow* >( result );
     
+    std::string aboutString = 
+        "Trabalho sobre Corner Tables.\n"
+        "Prof. Marcelo Gattass\n"
+        "19/04/2016\n"
+        "\n"
+        "LEFT MOUSE = Rotação\n"
+        "RIGHT MOUSE = Zoom\n"
+        "MIDDLE MOUSE = Pick/Pan\n"
+        "SPACE = Camera inicial\n";
+            
     gtk_widget_destroy( dialog->_aboutDialog );
     
     dialog->_aboutDialog = gtk_about_dialog_new();
     gtk_about_dialog_set_name( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), "[FCG] Trabalho 2" );
     gtk_about_dialog_set_version( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), "v1.0" );
-    gtk_about_dialog_set_comments( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), "Trabalho sobre Corner Tables.\nProf. Marcelo Gattass\n19/04/2016" );
-    //gtk_about_dialog_set_authors( GTK_ABOUT_DIALOG( aboutDialog ), "Allan Werner Schöttler" );
+    gtk_about_dialog_set_comments( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), aboutString.c_str() );
+    //gtk_about_dialog_set_authors( GTK_ABOUT_DIALOG( dialog->_aboutDialog ), authorName );
     
     gtk_widget_show_all( dialog->_aboutDialog );
     

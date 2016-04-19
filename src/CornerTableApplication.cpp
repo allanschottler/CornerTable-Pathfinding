@@ -10,6 +10,7 @@
 #include "MeshGeometry.h"
 #include "PointGenerator.h"
 #include "WireframeGeometry.h"
+#include "PointPickHandler.h"
 
 #include <osg/Geode>
 #include <osg/LineWidth>
@@ -37,13 +38,14 @@ CornerTableApplication::CornerTableApplication() :
     _scene->getOrCreateStateSet()->setAttribute( point, osg::StateAttribute::ON );
     
     _scene->getOrCreateStateSet()->setMode( GL_LIGHTING, osg::StateAttribute::OFF );
-    
+        
     osg::ref_ptr< osgGA::TrackballManipulator > manipulator = new osgGA::TrackballManipulator();
     
     osg::Vec3d eye, center, up, newEye( 0.0f, 5.0f, 5.0f );
     manipulator->getHomePosition( eye, center, up );    
     manipulator->setHomePosition( newEye, center, up );    
-
+    
+    _window->getCanvas().addEventHandler( new PointPickHandler );
     _window->getCanvas().setCameraManipulator( manipulator );
     _window->getCanvas().setSceneData( _scene );
     _window->show();
@@ -77,12 +79,15 @@ bool CornerTableApplication::openFile( std::string file )
         return false;
     
     _meshGeometry = new MeshGeometry( _cornerTable );   
-    _wireframeGeometry = new WireframeGeometry( _cornerTable );
+    _wireframeGeometry = new WireframeGeometry( _cornerTable );    
     
     _scene->addDrawable( _meshGeometry );   
     _scene->addDrawable( _wireframeGeometry );   
+    _scene->setInitialBound( _scene->computeBound() );
     
     _window->clearMessages();
+    
+    _window->getCanvas().realize();
     
     return true;
 }
@@ -90,26 +95,27 @@ bool CornerTableApplication::openFile( std::string file )
 
 void CornerTableApplication::generateRandomPoint()
 {
+    double x, y;
+    PointGenerator().generate( x, y );    
+    
+    /*osg::BoundingBox bb = _meshGeometry->getBound();
+    x = ( ( ( x - (-1) ) * ( bb._max.x() - bb._min.x() ) ) / ( 1 - (-1) ) ) + bb._min.x();
+    y = ( ( ( y - (-1) ) * ( bb._max.y() - bb._min.y() ) ) / ( 1 - (-1) ) ) + bb._min.y();*/
+    
+    pickPoint( x, y );
+}
+
+
+void CornerTableApplication::pickPoint( double x, double y )
+{
     if( !_cornerTable )
-        return;    
+        return;  
     
     _window->clearMessages();
     _scene->removeDrawable( _pointGeometry );
     
-    double x, y;
-    PointGenerator().generate( x, y );    
-    
-    std::string msg( "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")" );   
-    
+    std::string msg( "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")" );       
     _window->printMessage( msg );
-    
-    osg::BoundingBox bb = _meshGeometry->getBound();
-    x = ( ( ( x - (-1) ) * ( bb._max.x() - bb._min.x() ) ) / ( 1 - (-1) ) ) + bb._min.x();
-    y = ( ( ( y - (-1) ) * ( bb._max.y() - bb._min.y() ) ) / ( 1 - (-1) ) ) + bb._min.y();
-    
-    /*msg =  "(" + std::to_string( x ) + ", " + std::to_string( y ) + ")";
-     
-    _window->printMessage( msg );*/
     
     _pointGeometry = createPointGeometry( x, y );
     _scene->addDrawable( _pointGeometry );
